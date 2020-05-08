@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import UserFlows from './UserFlows';
-import PendingTasks from './PendingTasks';
+import Pendings from './Pendings';
 import { connect } from 'react-redux';
 
 class DisplayDesign extends Component {
@@ -9,7 +9,7 @@ class DisplayDesign extends Component {
             return < UserFlows />
         }
         return (
-            <PendingTasks />
+            <Pendings />
         )
     }
 }

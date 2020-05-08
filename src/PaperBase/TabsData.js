@@ -4,7 +4,6 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { connect } from 'react-redux';
 
-
 const TabsData = (props) => {
   const changeTabValue = (value) => {
     if (props.header === 'Flows Designing') {
@@ -55,8 +54,11 @@ const TabsData = (props) => {
     >
       <Tabs value={props.associated_flows_activity} textColor="inherit">
         <Tab textColor="inherit" label="Flow Status" onClick={changeTabValue.bind(this, 0)} />
-        {props.role !== "Customer" ?
-          <Tab textColor="inherit" label="Pending Tasks" onClick={changeTabValue.bind(this, 1)} /> : null}
+        {
+          props.role !== "Customer" ?
+            <Tab textColor="inherit" label="Pending Tasks" onClick={changeTabValue.bind(this, 1)} />
+            : null
+        }
       </Tabs>
     </AppBar>
   }

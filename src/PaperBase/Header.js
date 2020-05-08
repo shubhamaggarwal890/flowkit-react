@@ -61,7 +61,6 @@ function Header(props) {
 
   const handleLogOut = () => {
     setAnchorEl(null);
-
   }
 
   return (
@@ -89,7 +88,7 @@ function Header(props) {
             </Grid>
             <Grid item>
               <Tooltip title="Alerts • No alerts">
-                <IconButton color="inherit">
+                <IconButton color="inherit" aria-controls="notifications" aria-haspopup="true" onClick={props.getNotifications}>
                   <NotificationsIcon />
                 </IconButton>
               </Tooltip>
@@ -105,8 +104,6 @@ function Header(props) {
                 onClose={handleClose}
                 TransitionComponent={Fade}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
                 <NavLink to="/" exact style={{ textDecoration: 'none' }}>
                   <MenuItem onClick={handleLogOut}>Logout</MenuItem>
                 </NavLink>

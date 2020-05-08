@@ -9,9 +9,9 @@ const initialState = {
         activity: 0
     },
     associate: {
-        name: null,
-        id: null,
-        role: null
+        name: "Barry Allen",
+        id: 10,
+        role: "Flow Kit Designer"
     },
     drawer: {
         nodes: [

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import UserFlowCard from './UserFlowCard';
-import Kitdisplay from './Kitdisplay';
+import KitConditional from './KitConditional';
 import axios from 'axios';
 import { Grid } from '@material-ui/core';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -13,23 +13,24 @@ function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-class UserFlows extends Component {
+class Pendings extends Component {
 
     state = {
         showFlow: true,
         workflow_instance_data: null,
         waiting: false,
-        message: "Fetching workflows documented for you from server, Please wait!",
+        message: "Fetching workflows associated for you from server, Please wait!",
         nodes: null,
         connectors: null,
         error: false,
         error_message: null,
         delete_success: false,
         title: null,
+        workflow_id: null
     }
 
-    fetch_workflows_instance = () => {
-        axios.post('/get_workflows_instance',
+    fetch_workflows_instance_associate = () => {
+        axios.post('/get_workflows_instance_associate',
             {
                 id: this.props.id
             }).then(response => {
@@ -42,7 +43,7 @@ class UserFlows extends Component {
                 } else {
                     this.setState({
                         ...this.state,
-                        message: "No workflow documented for you found.",
+                        message: "No workflow associated for you found.",
                         waiting: false
                     })
                 }
@@ -61,7 +62,7 @@ class UserFlows extends Component {
             ...this.state,
             waiting: true
         })
-        this.fetch_workflows_instance();
+        this.fetch_workflows_instance_associate();
     }
 
     handleCloseSnackBar = () => {
@@ -75,10 +76,11 @@ class UserFlows extends Component {
         this.setState({
             ...this.state,
             waiting: true,
-            title: workflowInstanceTitle
+            title: workflowInstanceTitle,
+            workflow_id: workflowInstanceId
         })
 
-        axios.post('/get_workflow_instance_activity', {
+        axios.post('/get_workflow_instance_associate_activity', {
             id: workflowInstanceId
         }).then(response => {
             if (response.data) {
@@ -99,8 +101,7 @@ class UserFlows extends Component {
                                 content: element.title
                             }
                         ],
-                        document: element.document===null?null:element.document.id,
-                        associates: element.associates,
+                        document: element.document === null ? null : element.document.id,
                         any_all: element.any_all,
                         auto: element.auto,
                         status: element.status
@@ -114,6 +115,7 @@ class UserFlows extends Component {
                         index += 1;
                     }
                 })
+
                 this.setState({
                     ...this.state,
                     waiting: false,
@@ -144,9 +146,10 @@ class UserFlows extends Component {
     toggleWorkFlowInstanceStatus = () => {
         this.setState({
             showFlow: !this.state.showFlow,
-            waiting: true
+            waiting: true,
+            workflow_instance_data: null
         })
-        this.fetch_workflows_instance();
+        this.fetch_workflows_instance_associate();
     }
 
     render() {
@@ -159,15 +162,19 @@ class UserFlows extends Component {
                     date={workflow.date} description={workflow.description} wf_description={workflow.wf_description}
                     deadline={workflow.deadline} />
             })
+        }else{
+            workflows = null;
         }
         return (
             <div>
-                {this.state.showFlow ?
-                    <div style={{ flexGrow: 1 }}>
-                        <Grid container spacing={1} style={{ padding: "10px" }}>
-                            {workflows ? workflows : <p style={{ padding: "15px" }}>{this.state.message}</p>}
-                        </Grid> </div> : <Kitdisplay nodes={this.state.nodes} connectors={this.state.connectors}
-                            exitButton={this.toggleWorkFlowInstanceStatus} title={this.state.title}/>}
+                {
+                    this.state.showFlow ?
+                        <div style={{ flexGrow: 1 }}>
+                            <Grid container spacing={1} style={{ padding: "10px" }}>
+                                {workflows ? workflows : <p style={{ padding: "15px" }}>{this.state.message}</p>}
+                            </Grid> </div> : <KitConditional nodes={this.state.nodes} connectors={this.state.connectors}
+                                exitButton={this.toggleWorkFlowInstanceStatus} title={this.state.title} workflow_id={this.state.workflow_id} />
+                }
                 <Backdrop style={{ zIndex: '300', color: '#000' }} open={this.state.waiting}>
                     <CircularProgress color="inherit" />
                 </Backdrop>
@@ -187,4 +194,4 @@ const mapStateToProps = state => {
     };
 }
 
-export default connect(mapStateToProps)(UserFlows);
+export default connect(mapStateToProps)(Pendings);

@@ -125,7 +125,6 @@ class kitassociate extends SampleBase {
                         message_associate: null,
                         document_id: element.document_id ? element.document_id : null
                     })
-                    console.log(this.state.auto, this.state.role, this.state.individual, this.state.other);
                 }
             });
         }
@@ -324,15 +323,6 @@ class kitassociate extends SampleBase {
             activities.push(activity)
         });
 
-        console.log({
-            id: this.props.workflow_id,
-            title: this.state.title,
-            description: this.state.wf_desc,
-            creator: this.props.id,
-            customer: this.state.same_as_initiator ? null : this.state.end_email,
-            activities: activities
-        })
-
         axios.post('/add_workflow_instance', {
             id: this.props.workflow_id,
             title: this.state.title,
@@ -342,7 +332,6 @@ class kitassociate extends SampleBase {
             activities: activities
 
         }).then(response => {
-            console.log(response);
             if (/Success:/.test(response.data)) {
                 this.setState({
                     ...this.state,
@@ -453,8 +442,6 @@ class kitassociate extends SampleBase {
             axios.post('/get_document', {
                 id: this.state.document_id
             }, { responseType: 'arraybuffer' }).then(response => {
-                console.log(response);
-                console.log(this.state.document)
                 if (response.data) {
                     const file = new Blob([response.data], { type: 'application/pdf' });
                     const fileURL = URL.createObjectURL(file);
@@ -726,10 +713,10 @@ class kitassociate extends SampleBase {
                 </Dialog>
                 <Dialog open={this.state.showTitle}
                     aria-labelledby="form-dialog-title" style={{ zIndex: '200' }}>
-                    <DialogTitle id="form-dialog-title">Document the Workflow</DialogTitle>
+                    <DialogTitle id="form-dialog-title">Initiate the Workflow</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            To document the workflow, please enter the title.
+                            To Initiate the workflow, please enter the title.
                         </DialogContentText>
                         <TextField
                             autoFocus

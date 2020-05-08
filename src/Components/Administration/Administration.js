@@ -19,7 +19,6 @@ class Administration extends Component {
     getRolesFromDatabase = () => {
         axios.get('/get_roles').then(response => {
             if (response.data) {
-                console.log(response.data)
                 this.setState({
                     roles: response.data
                 })
