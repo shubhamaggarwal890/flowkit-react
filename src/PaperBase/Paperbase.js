@@ -175,7 +175,7 @@ function Paperbase(props) {
           </Hidden>
         </nav>
         <div className={classes.app}>
-          <Header onDrawerToggle={handleDrawerToggle} header={props.match.params.id.replace("_", " ")} />
+          <Header onDrawerToggle={handleDrawerToggle} header={props.match.params.id.replace("_", " ")} getNotifications={props.getNotifications}/>
           <main className={classes.main}>
             <Content />
           </main>

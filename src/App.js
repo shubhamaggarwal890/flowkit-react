@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import Paperbase from './PaperBase/Paperbase';
+import Flowkit from './PaperBase/Flowkit';
 import { BrowserRouter } from 'react-router-dom';
 import { Switch, Route } from 'react-router-dom';
 import SignInSide from './Components/SignIn/SignInSide';
 import { connect } from 'react-redux';
+
 
 class App extends Component {
  
@@ -11,7 +12,7 @@ class App extends Component {
     return (
       <BrowserRouter>
         <Switch>
-          {this.props.id ? <Route path="/:id" exact component={Paperbase} /> : null}
+          {this.props.id ? <Route path="/:id" exact component={Flowkit} /> : null}
           <Route path="/" component={SignInSide} />
         </Switch>
 

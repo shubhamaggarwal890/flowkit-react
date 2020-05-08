@@ -173,7 +173,6 @@ class Kitmodifier extends SampleBase {
             activity_data: nodes_data,
             deadline: 30
         }).then(response => {
-            console.log(response);
             if (/Success:/.test(response.data)) {
                 this.setState({
                     ...this.state,

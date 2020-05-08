@@ -56,7 +56,6 @@ class WorkFlows extends Component {
             ...this.state,
             waiting: true
         })
-        console.log("In componentDidMount [Workflows]");
         this.fetch_workflows();
     }
 
@@ -107,7 +106,6 @@ class WorkFlows extends Component {
                             targetID: element.activity_successor
                         })
                         connector_count += 1;
-                        console.log(connector_data);
                     }
                 })
                 this.setState({

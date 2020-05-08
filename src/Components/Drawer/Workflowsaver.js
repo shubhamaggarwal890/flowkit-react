@@ -99,15 +99,7 @@ class WorkFlowSaver extends Component {
             })
             nodes_data.push(node_object)
         });
-        console.log({
-            title: this.state.title,
-            description: this.state.description.length > 0 ? this.state.description : null,
-            creator: {
-                id: this.props.creator_id
-            },
-            activities: nodes_data,
-            deadline: 30
-        })
+        
 
         axios.post('/add_workflow', {
             title: this.state.title,

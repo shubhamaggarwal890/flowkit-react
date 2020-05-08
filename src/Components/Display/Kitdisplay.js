@@ -100,12 +100,9 @@ class kitdisplay extends SampleBase {
             progress: true
         })
         if (this.state.document !== null) {
-            console.log(this.state.document);
             axios.post('/get_document', {
                 id: this.state.document
             }, { responseType: 'arraybuffer' }).then(response => {
-                console.log(response);
-                console.log(this.state.document)
                 if (response.data) {
                     const file = new Blob([response.data], { type: 'application/pdf' });
                     const fileURL = URL.createObjectURL(file);
@@ -142,7 +139,6 @@ class kitdisplay extends SampleBase {
         if (activity_args.actualObject && activity_args.actualObject.propName === 'nodes') {
             this.state.diagramInstance.nodes.forEach(element => {
                 if (element.id === activity_args.actualObject.properties.id) {
-                    console.log(element);
                     this.setState({
                         ...this.state,
                         activity: true,
@@ -235,7 +231,8 @@ class kitdisplay extends SampleBase {
 
                 <Dialog open={this.state.activity}
                     aria-labelledby="form-dialog-activity" style={{ zIndex: '200' }}>
-                    <DialogTitle id="form-dialog-activity">Activity - {this.state.title} - {this.state.status}</DialogTitle>
+                    <DialogTitle id="form-dialog-activity">Activity - {this.state.title} - {
+                        this.state.status!=="PENDING"?<>{this.state.status}ED</>:this.state.status}</DialogTitle>
                     <DialogContent>
                         {
                             this.state.description ?
@@ -267,7 +264,7 @@ class kitdisplay extends SampleBase {
                                             {
                                                 (this.state.associate !== null && this.state.associate.length > 1) ?
                                                     this.state.status !== "PENDING" ?
-                                                        <>The activity is {this.state.status} by {
+                                                        <>The activity is {this.state.status}ED by {
                                                             this.state.any_all ? <>all</> : <>any one</>
                                                         } of them</>
                                                         : <>The activity is pending for approval these are the associates of the activity,
@@ -275,7 +272,7 @@ class kitdisplay extends SampleBase {
                                                                 this.state.any_all ? <>all</> : <>any one</>
                                                             } of them</>
                                                     : this.state.status!=="PENDING" ?
-                                                        <>The activity is {this.state.status} by the mentioned associate</>
+                                                        <>The activity is {this.state.status}ED by the mentioned associate</>
                                                         : <>The approval is pending for the activity by the mentioned associates of the activity</>
                                             }
                                         </caption>

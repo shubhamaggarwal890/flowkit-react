@@ -1,44 +1,38 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
-import { DiagramComponent } from "@syncfusion/ej2-react-diagrams";
+import { DiagramComponent, NodeConstraints, ConnectorConstraints } from "@syncfusion/ej2-react-diagrams";
 import { withStyles } from '@material-ui/core/styles';
 import { SampleBase } from './../Samplebase';
+import Brightness1Icon from '@material-ui/icons/Brightness1';
+import Backdrop from '@material-ui/core/Backdrop';
 import './../../assets/kitdrawer.css';
-import TextField from '@material-ui/core/TextField';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
 import Button from '@material-ui/core/Button';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import Brightness1Icon from '@material-ui/icons/Brightness1';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import TextField from '@material-ui/core/TextField';
+import Grid from '@material-ui/core/Grid';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload'
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormLabel from '@material-ui/core/FormLabel';
-import Link from '@material-ui/core/Link';
+import axios from 'axios';
+import { connect } from 'react-redux';
+import Badge from '@material-ui/core/Badge';
+
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-//Initializes the connector for the diagram
-let connectors = [
-    {
-        id: "connector1",
-        sourceID: "Start",
-        targetID: "Alarm"
-    },
-    { id: "connector2", sourceID: "Alarm", targetID: "Ready" },
-    {
-        id: "connector3",
-        sourceID: "Ready",
-        targetID: "Climb",
-    },
-    { id: "connector4", sourceID: "Climb", targetID: "End" },
-];
 
 
 const styles = (theme) => ({
@@ -58,367 +52,345 @@ const styles = (theme) => ({
 
 class KitConditional extends SampleBase {
 
-    state = {
-        activity_id: null,
-        pendingOpen: false,
-        approvedOpen: false,
-        diagramInstance: null,
-        actionSelection: 'approve',
-        message: null,
-        remark: '',
-        activityRemark: null,
-        approverRemark: null,
-        activityDocument: null,
-        nodes: [
-            {
-                id: "Start",
-                height: 50,
-                width: 100,
-                offsetX: 250,
-                offsetY: 60,
-                shape: { type: "Flow", shape: "Terminator" },
-                annotations: [
-                    {
-                        content: "Start"
-                    }
-                ],
-                style: { fill: "#A2D8B0" }
-            },
-            {
-                id: "Alarm",
-                height: 50,
-                width: 100,
-                offsetX: 250,
-                offsetY: 160,
-                shape: { type: "Flow", shape: "Process" },
-                annotations: [
-                    {
-                        content: "Alarm Rings"
-                    }
-                ],
-                style: { fill: "#A2D8B0" }
-            },
-            {
-                id: "Ready",
-                height: 80,
-                width: 100,
-                offsetX: 250,
-                offsetY: 260,
-                shape: { type: "Flow", shape: "Decision" },
-                annotations: [
-                    {
-                        content: "Ready to Get Up?"
-                    }
-                ],
-                style: { fill: "#FFB2B2" }
-            },
-            {
-                id: "Climb",
-                height: 50,
-                width: 100,
-                offsetX: 250,
-                offsetY: 370,
-                shape: { type: "Flow", shape: "Process" },
-                annotations: [
-                    {
-                        content: "Climb Out of Bed"
-                    }
-                ],
-                style: { fill: "#DCDCDC" }
-            },
-            {
-                id: "End",
-                height: 50,
-                width: 100,
-                offsetX: 250,
-                offsetY: 460,
-                shape: { type: "Flow", shape: "Terminator" },
-                annotations: [
-                    {
-                        content: "End"
-                    }
-                ],
-                style: { fill: "#DCDCDC" }
-            }
-        ]
-    }
-
-
-    handleActivityOpen = (activity_args) => {
-        if (activity_args.actualObject && activity_args.actualObject.propName === 'nodes') {
-            const id = activity_args.actualObject.properties.id;
-            let status = "\""+activity_args.actualObject.properties.annotations[0].properties.content+"\"";
-            let diagramTempInstance = this.state.diagramInstance;
-            for (let i = 0; i < diagramTempInstance.nodes.length; i++) {
-                if (diagramTempInstance.nodes[i].id === id) {
-                    if (diagramTempInstance.nodes[i].style.fill === "#DCDCDC") {
-                        status += " is pending for approval/rejection from " + diagramTempInstance.nodes[i].associate;
-                        this.setState({
-                            ...this.state,
-                            pendingOpen: true,
-                            activity_id: id
-                        })
-                    } else if (diagramTempInstance.nodes[i].style.fill === "#A2D8B0") {
-                        status += " is approved by " + diagramTempInstance.nodes[i].associate;
-                        console.log(status);
-                        this.setState({
-                            ...this.state,
-                            approvedOpen: true,
-                            message: status,
-                            approverRemark: diagramTempInstance.nodes[i].approverRemark,
-                            activityRemark: diagramTempInstance.nodes[i].remark ? diagramTempInstance.nodes[i].remark : null,
-                            activityDocument: diagramTempInstance.nodes[i].document ? diagramTempInstance.nodes[i].document : null
-                        })
-                    } else if (diagramTempInstance.nodes[i].style.fill === "#FFB2B2") {
-                        status += " is rejected by " + diagramTempInstance.nodes[i].associate;
-                        console.log(status);
-                        this.setState({
-                            ...this.state,
-                            approvedOpen: true,
-                            message: status,
-                            approverRemark: diagramTempInstance.nodes[i].approverRemark,
-                            activityRemark: diagramTempInstance.nodes[i].remark ? diagramTempInstance.nodes[i].remark : null,
-                            activityDocument: diagramTempInstance.nodes[i].document ? diagramTempInstance.nodes[i].document : null
-                        })
-                    }
-                }
+    componentDidMount() {
+        let diagramTempInstance = this.state.diagramInstance;
+        for (let i = 0; i < diagramTempInstance.nodes.length; i++) {
+            diagramTempInstance.nodes[i].constraints &= ~(NodeConstraints.Resize | NodeConstraints.Rotate | NodeConstraints.Drag);
+            diagramTempInstance.nodes[i].constraints &= ~(NodeConstraints.Delete);
+            diagramTempInstance.nodes[i].constraints |= NodeConstraints.ReadOnly;
+            if (diagramTempInstance.nodes[i].status === "PENDING") {
+                diagramTempInstance.nodes[i].style.fill = "#DCDCDC"
+            } else if (diagramTempInstance.nodes[i].status === "ACCEPT") {
+                diagramTempInstance.nodes[i].style.fill = "#A2D8B0"
+            } else if (diagramTempInstance.nodes[i].status === "REJECT") {
+                diagramTempInstance.nodes[i].style.fill = "#FFB2B2"
             }
         }
-    };
 
-    changeActionSelection = (event) => {
+        for (let i = 0; i < diagramTempInstance.connectors.length; i++) {
+            diagramTempInstance.connectors[i].constraints &= ~(ConnectorConstraints.Resize | ConnectorConstraints.Rotate | ConnectorConstraints.Drag);
+            diagramTempInstance.connectors[i].constraints &= ~(ConnectorConstraints.Delete);
+            diagramTempInstance.connectors[i].constraints |= ConnectorConstraints.ReadOnly;
+        }
         this.setState({
             ...this.state,
-            actionSelection: event.target.value,
+            diagramInstance: diagramTempInstance
         })
     }
-    changeActivityRemarkListener = (event) => {
-        this.setState({
-            ...this.state,
-            remark: event.target.value,
-        })
-    };
 
 
-    handleActivityClose = () => {
+    state = {
+        activity: false,
+        title: '',
+        description: null,
+        document: null,
+        status: '',
+        auto: false,
+        any_all: false,
+        associate: null,
+        snackbar: false,
+        message: null,
+        diagramInstance: null,
+        progress: false,
+        choice: "ACCEPT",
+        remark: '',
+        activity_id: null,
+        success_snackbar: false,
+    }
+
+    viewUploadedFile = () => {
         this.setState({
             ...this.state,
-            pendingOpen: false,
-            approvedOpen: false
+            progress: true
         })
-    };
+        if (this.state.document !== null) {
+            axios.post('/get_document', {
+                id: this.state.document
+            }, { responseType: 'arraybuffer' }).then(response => {
+                if (response.data) {
+                    const file = new Blob([response.data], { type: 'application/pdf' });
+                    const fileURL = URL.createObjectURL(file);
+                    window.open(fileURL, "_blank");
+                } else {
+
+                }
+            }).catch(error => {
+                console.log("Error", error);
+                this.setState({
+                    ...this.state,
+                    message: "Oh No, Document couldn't be loaded, Some error occurred. Please try again.",
+                    snackbar: true
+                })
+            })
+            this.setState({
+                ...this.state,
+                progress: false
+            })
+        }
+    }
 
     handleCloseSnackBar = () => {
         this.setState({
             ...this.state,
-            snackbar: false
+            snackbar: false,
+            message: null
         })
     }
 
-
-    saveActivityListener = () => {
-        let diagramTempInstance = this.state.diagramInstance;
-        for (let i = 0; i < diagramTempInstance.nodes.length; i++) {
-            if (diagramTempInstance.nodes[i].id === this.state.activity_id) {
-                if (this.state.actionSelection === "approve") {
-                    diagramTempInstance.nodes[i].style.fill = "#A2D8B0";
-
-                } else if (this.state.actionSelection === "reject") {
-                    diagramTempInstance.nodes[i].style.fill = "#FFB2B2";
-                }
-                this.state.remark || this.state.remark.length ? diagramTempInstance.nodes[i].approverRemark = this.state.remark :
-                    diagramTempInstance.nodes[i].approverRemark = null
-            }
-        }
+    handleSuccessSnackBar = () => {
         this.setState({
             ...this.state,
-            diagramInstance: diagramTempInstance,
-            snackbar: true,
-            pendingOpen: false,
-            actionSelection: 'approve',
-            remark: ''
+            success_snackbar: false,
+            message: null
         })
-    };
-
-
-
-    nullifyCommands() {
-        let commandManager = {
-            commands: [
-                {
-                    name: "delete",
-                    canExecute: () => {
-                        return false;
-                    },
-                },
-                {
-                    name: "selectAll",
-                    canExecute: () => {
-                        return false;
-                    }
-                },
-                {
-                    name: "cut",
-                    canExecute: () => {
-                        return false;
-                    }
-                },
-                {
-                    name: "copy",
-                    canExecute: () => {
-                        return false;
-                    }
-                },
-                {
-                    name: "paste",
-                    canExecute: () => {
-                        return false;
-                    }
-                },
-                {
-                    name: "undo",
-                    canExecute: () => {
-                        return false;
-                    }
-                },
-                {
-                    name: "redo",
-                    canExecute: () => {
-                        return false;
-                    }
-                }
-            ]
-        };
-        return commandManager;
+        this.props.exitButton();
     }
+
+
+    addRemarkHandler = (event) => {
+        this.setState({
+            ...this.state,
+            remark: event.target.value
+        })
+    }
+
+
+
+    handleActivityStatusOpen = (activity_args) => {
+        if (activity_args.actualObject && activity_args.actualObject.propName === 'nodes') {
+            this.state.diagramInstance.nodes.forEach(element => {
+                if (element.id === activity_args.actualObject.properties.id) {
+                    this.setState({
+                        ...this.state,
+                        activity: true,
+                        activity_id: element.id,
+                        title: element.annotations[0].content,
+                        description: element.description,
+                        document: element.document !== null ? element.document : null,
+                        status: element.status,
+                        auto: element.auto,
+                        any_all: element.any_all,
+                        snackbar: false,
+                        message: null
+                    })
+                }
+            });
+        }
+    }
+
+    choiceChangeHandler = (event) => {
+        this.setState({
+            ...this.state,
+            choice: event.target.value,
+        })
+    }
+
+    handleActivityStatusClose = () => {
+        this.setState({
+            ...this.state,
+            activity: false,
+            message: null,
+        })
+    }
+
+    handleActivitySave = () => {
+        this.setState({
+            ...this.state,
+            progress: true
+        })
+        axios.post('/save_associate_response', {
+            workflow: this.props.workflow_id,
+            activity_instance: this.state.activity_id,
+            associate: this.props.id,
+            status: this.state.choice,
+            any_all: this.state.any_all,
+            remark: this.state.remark
+        }).then(response => {
+            if (response.data) {
+                this.setState({
+                    ...this.state,
+                    message: "Your response saved successfully. Redirecting to inbox.",
+                    success_snackbar: true,
+                    progress: false
+                })
+    
+            } else {
+                this.setState({
+                    ...this.state,
+                    message: "Oh No, Your reponse couldn't be saved. Please try again.",
+                    snackbar: true,
+                    progress: false
+                })
+
+            }
+        }).catch(error => {
+            console.log("Error", error);
+            this.setState({
+                ...this.state,
+                message: "Oh No, Your reponse couldn't be saved. Please try again.",
+                snackbar: true,
+                progress: false
+            })
+        })
+
+    }
+
     render() {
-        // const { classes } = this.props;
-        return (<div className="control-pane">
-            <div className="col-lg-8 control-section">
-                <Button variant="outlined" color="primary"
-                    style={{ marginTop: '10px', marginBottom: '10px', marginLeft: '10px' }}
-                    onClick={this.props.clicked} startIcon={<ExitToAppIcon />}>
-                    Exit
-                </Button>
-                <div style={{ width: "100%", height: "80%" }}>
-                    <div id="diagram-space" className="sb-mobile-diagram">
-                        <DiagramComponent id="diagram" ref={diagram => (this.state.diagramInstance = diagram)}
-                            width={"130%"} height={"645px"} nodes={this.state.nodes} connectors={connectors}
-                            getConnectorDefaults={(args, diagram) => {
-                                args.targetDecorator.height = 5;
-                                args.targetDecorator.width = 5;
-                                args.style.strokeColor = "#797979";
-                                args.targetDecorator.style = {
-                                    fill: "#797979",
-                                    strokeColor: "#797979"
-                                };
-                                return args;
-                            }}
-                            click={(args) => {
-                                this.handleActivityOpen(args);
+        return (
+            <div className="control-pane">
+                <div className="col-lg-8 control-section">
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={4}>
+                            <ButtonGroup color="primary" aria-label="outlined primary button group"
+                                style={{ marginTop: '10px', marginBottom: '10px', marginLeft: '10px' }}>
+                                <Button startIcon={<ExitToAppIcon />} onClick={this.props.exitButton}>Exit</Button>
+                            </ButtonGroup>
+                        </Grid>
+                        <Grid item xs={12} sm={8}>
+                            <h3>{this.props.title}</h3>
+                        </Grid>
+                    </Grid>
 
-                            }}
-                            commandManager={this.nullifyCommands()} />
+                    <div style={{ width: "100%", height: "80%" }}>
+                        <div id="diagram-space" className="sb-mobile-diagram">
+                            <DiagramComponent id="diagram" ref={diagram => (this.state.diagramInstance = diagram)} width={"130%"}
+                                height={"645px"} nodes={this.props.nodes} connectors={this.props.connectors}
+                                getConnectorDefaults={(args, diagram) => {
+                                    args.targetDecorator.height = 5;
+                                    args.targetDecorator.width = 5;
+                                    args.style.strokeColor = "#797979";
+                                    args.targetDecorator.style = {
+                                        fill: "#797979",
+                                        strokeColor: "#797979"
+                                    };
+                                    return args;
+                                }}
+                                click={(args) => {
+                                    this.handleActivityStatusOpen(args);
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="col-lg-4 property-section">
+                    <div>
+                        <h4 className="property-panel-header">Color Commands</h4>
+                        <div className="property-panel-content">
+                            <table id="property1" style={{ fontSize: "12px" }}>
+                                <tbody>
+                                    <tr>
+                                        <td style={{ width: "50%" }}><Brightness1Icon fontSize='large'
+                                            style={{ color: '#DCDCDC' }} /> </td>
+                                        <td style={{ width: "50%" }}>Pending</td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "50%" }}><Brightness1Icon fontSize='large'
+                                            style={{ color: '#A2D8B0' }} /> </td>
+                                        <td style={{ width: "50%" }}>Approved</td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "50%" }}><Brightness1Icon fontSize='large'
+                                            style={{ color: '#FFB2B2' }} /> </td>
+                                        <td style={{ width: "50%" }}>Rejected</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-            </div>
-            <div className="col-lg-4 property-section">
-                <div>
-                    <h4 className="property-panel-header">Color Commands</h4>
-                    <div className="property-panel-content">
-                        <table id="property1" style={{ fontSize: "12px" }}>
-                            <tbody>
-                                <tr>
-                                    <td style={{ width: "50%" }}><Brightness1Icon fontSize='large'
-                                        style={{ color: '#DCDCDC' }} /> </td>
-                                    <td style={{ width: "50%" }}>Pending Action</td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "50%" }}><Brightness1Icon fontSize='large'
-                                        style={{ color: '#A2D8B0' }} /> </td>
-                                    <td style={{ width: "50%" }}>Approved</td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "50%" }}><Brightness1Icon fontSize='large'
-                                        style={{ color: '#FFB2B2' }} /> </td>
-                                    <td style={{ width: "50%" }}>Rejected</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <Dialog open={this.state.pendingOpen}
-                aria-labelledby="form-dialog-activity" style={{ zIndex: '200' }}>
-                <DialogTitle id="form-dialog-activity">WorkFlow activity status</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Select to approve/reject the activity in the flow. Also add a suitable remark.
-                        </DialogContentText>
-                    <FormLabel component="legend">Status Selection</FormLabel>
-                    <RadioGroup aria-label="status" name="select status" value={this.state.actionSelection}
-                        onChange={this.changeActionSelection}>
-                        <FormControlLabel value="approve" control={<Radio />} label="Approve" />
-                        <FormControlLabel value="reject" control={<Radio />} label="Reject" />
-                    </RadioGroup>
-                    <TextField
-                        margin="dense"
-                        id="name"
-                        label="Remark"
-                        type="text"
-                        fullWidth
-                        onChange={this.changeActivityRemarkListener}
-                        value={this.state.remark}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={this.handleActivityClose} color="primary">
-                        Cancel
-                        </Button>
-                    <Button onClick={this.saveActivityListener} color="primary">
-                        Save
-                        </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={this.state.approvedOpen} fullWidth={true} maxWidth="sm" scroll="paper"
-                aria-labelledby="form-dialog-activity" style={{ zIndex: '200' }}>
-                <DialogTitle id="form-dialog-activity">WorkFlow activity status</DialogTitle>
-                <DialogContent dividers={true}>
-                    <DialogContentText>
-                        {this.state.message}
-                    </DialogContentText>
-                    <DialogContentText>
-                        Initiator Remark - {this.state.activityRemark}
-                    </DialogContentText>
-                    {this.state.approverRemark ? <DialogContentText>Approver Remark - {this.state.approverRemark}</DialogContentText> : null}
-                    {this.state.activityDocument ?
-                        <DialogContentText>
-                            <Link component="button" variant="body2" onClick={() => {
-                                window.open("./xyz.pdf", "_blank")
-                            }}>Document Link</Link>
-                        </DialogContentText> : null}
-                </DialogContent >
-                <DialogActions>
-                    <Button onClick={this.handleActivityClose} color="primary">
-                        Close
+                <Dialog open={this.state.activity}
+                    aria-labelledby="form-dialog-activity" style={{ zIndex: '200' }}>
+                    <DialogTitle id="form-dialog-activity">Activity - {this.state.title} - {
+                        this.state.status !== "PENDING" ? <>{this.state.status}ED</> : this.state.status}</DialogTitle>
+                    <DialogContent>
+                        {
+                            this.state.description ?
+                                <DialogContentText>
+                                    {this.state.description}
+                                </DialogContentText> : null
+                        }
+
+                        {
+                            this.state.document !== null ?
+                                <Grid container spacing={1} alignItems="flex-end" style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+                                    <Grid item>
+                                        <Badge badgeContent={1} color="primary">
+                                            <CloudDownloadIcon />
+                                        </Badge>
+                                    </Grid>
+                                    <Grid item>
+                                        <Button color="primary" onClick={this.viewUploadedFile}>View Uploaded File</Button>
+                                    </Grid>
+
+                                </Grid> : null
+                        }
+
+                        {this.state.status === "PENDING" ?
+                            <Grid item xs={12} style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+                                <FormControl component="fieldset">
+                                    <FormLabel component="legend">Your choice for the activity</FormLabel>
+                                    <RadioGroup value={this.state.choice} onChange={this.choiceChangeHandler} row>
+                                        <FormControlLabel value="ACCEPT" control={<Radio />} label="Accept" labelPlacement="start" />
+                                        <FormControlLabel value="REJECT" control={<Radio />} label="Reject" labelPlacement="start" />
+                                    </RadioGroup>
+                                </FormControl>
+
+                                <TextField
+                                    id="desc"
+                                    label="Remark"
+                                    fullWidth
+                                    multiline
+                                    onChange={this.addRemarkHandler}
+                                    value={this.state.remark}
+                                />
+
+                            </Grid> : null
+                        }
+
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.handleActivityStatusClose} color="primary">
+                            Close
                     </Button>
-                </DialogActions>
-            </Dialog >
+                        {this.state.status === "PENDING" ?
+                            <Button onClick={this.handleActivitySave} color="primary">
+                                Save
+                        </Button> : null
+                        }
+                    </DialogActions>
+                </Dialog>
 
-            <Snackbar open={this.state.snackbar} autoHideDuration={5000} onClose={this.handleCloseSnackBar}>
-                <Alert onClose={this.handleCloseSnackBar} severity="success">
-                    Activity in WorkFlow updated successfully!
+                <Backdrop style={{ zIndex: '300', color: '#000' }} open={this.state.progress}>
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+
+                <Snackbar open={this.state.snackbar} autoHideDuration={3000} onClose={this.handleCloseSnackBar}>
+                    <Alert onClose={this.handleCloseSnackBar} severity="error">
+                        {this.state.message}
                     </Alert>
-            </Snackbar>
+                </Snackbar>
 
-
-        </div >);
+                <Snackbar open={this.state.success_snackbar} autoHideDuration={4000} onClose={this.handleSuccessSnackBar}>
+                    <Alert onClose={this.handleSuccessSnackBar} severity="success">
+                        {this.state.message}
+                    </Alert>
+                </Snackbar>
+            </div>
+        );
     }
 }
+
 
 KitConditional.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(KitConditional);
+
+const mapStateToProps = state => {
+    return {
+        id: state.associate.id,
+    };
+}
+
+export default connect(mapStateToProps)(withStyles(styles)(KitConditional));
