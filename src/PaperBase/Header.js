@@ -18,6 +18,7 @@ import TabsData from './TabsData';
 import { deepPurple } from '@material-ui/core/colors';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+import Badge from '@material-ui/core/Badge';
 
 const lightColor = 'rgba(255, 255, 255, 0.7)';
 
@@ -87,11 +88,20 @@ function Header(props) {
               </p>
             </Grid>
             <Grid item>
-              <Tooltip title="Alerts • No alerts">
-                <IconButton color="inherit" aria-controls="notifications" aria-haspopup="true" onClick={props.getNotifications}>
-                  <NotificationsIcon />
-                </IconButton>
-              </Tooltip>
+              {props.number === 0 ?
+                <Tooltip title="No alerts">
+                  <IconButton color="inherit" aria-controls="notifications" aria-haspopup="true">
+                    <NotificationsIcon />
+                  </IconButton>
+                </Tooltip> :
+                <Tooltip title="Alerts">
+                  <IconButton color="inherit" aria-controls="notifications" aria-haspopup="true" onClick={props.getNotifications}>
+                    <Badge badgeContent={props.number} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
+              }
             </Grid>
             <Grid item>
               <IconButton aria-controls="signout-fade-menu" aria-haspopup="true" onClick={handleClick}>

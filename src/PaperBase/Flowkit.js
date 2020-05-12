@@ -1,36 +1,70 @@
 import React, { Component } from 'react';
 import { withSnackbar } from 'notistack';
 import Paperbase from './Paperbase';
+import axios from 'axios';
+import { connect } from 'react-redux';
 
-const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-}
+
+// const sleep = (milliseconds) => {
+//     return new Promise(resolve => setTimeout(resolve, milliseconds))
+// }
 
 class Flowkit extends Component {
 
-    constructor(props){        
+    constructor(props) {
         super(props);
-        console.log("Hello world");
-        
+        this.fetchNotifications();
+    }
+
+    componentDidUpdate(){
+        console.log("hello world");
+    }
+
+    state = {
+        notifications: []
+    }
+
+    fetchNotifications = () => {
+        axios.post('/get_notifications', {
+            id: this.props.id,
+        }).then(response => {
+            console.log(response);
+            if (response.data) {
+                this.setState({
+                    ...this.state,
+                    notifications: response.data
+                })
+            }
+        }).catch(error => {
+            console.log("Error", error);
+        })
     }
 
     getNotifications = () => {
-        for(var index = 0; index<10; index++){
-            this.props.enqueueSnackbar("The quick brown fox jumps over the lazy dog", {
-                autoHideDuration: 3000,
+        this.state.notifications.forEach((element, index) => {
+            this.props.enqueueSnackbar(element.message, {
+                autoHideDuration: 10000,
                 anchorOrigin: {
                     vertical: 'top',
                     horizontal: 'right',
                 }
             })
-            sleep(3000);
-        }
+        });
     }
 
 
 
-    render(){
-        return <Paperbase match={this.props.match} getNotifications={this.getNotifications}/>
+    render() {
+        return <Paperbase match={this.props.match} getNotifications={this.getNotifications}
+            number={this.state.notifications.length} />
     }
 }
-export default withSnackbar(Flowkit);
+
+const mapStateToProps = state => {
+    return {
+        id: state.associate.id,
+    };
+}
+
+
+export default connect(mapStateToProps)(withSnackbar(Flowkit));

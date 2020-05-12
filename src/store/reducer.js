@@ -1,7 +1,4 @@
 const initialState = {
-    flows_designing: {
-        activity: 0
-    },
     associated_flows: {
         activity: 0
     },
@@ -9,9 +6,9 @@ const initialState = {
         activity: 0
     },
     associate: {
-        name: "Barry Allen",
-        id: 10,
-        role: "Flow Kit Designer"
+        name: null,
+        id: null,
+        role: null
     },
     drawer: {
         nodes: [
@@ -42,19 +39,12 @@ const initialState = {
                 ],
             }
         ],
-        connectors:[]
+        connectors: []
     }
 }
 
 const reducer = (state = initialState, action) => {
-    if (action.type === 'activity_flows_desiging') {
-        return {
-            ...state,
-            flows_designing: {
-                activity: action.value
-            }
-        }
-    } else if (action.type === 'activity_associated_flows') {
+    if (action.type === 'activity_associated_flows') {
         return {
             ...state,
             associated_flows: {
@@ -73,21 +63,21 @@ const reducer = (state = initialState, action) => {
     } else if (action.type === 'activity_dashboard') {
         return {
             ...state,
-            dashboard:{
+            dashboard: {
                 activity: action.value
             }
         }
     } else if (action.type === 'drawer_diagram') {
         return {
             ...state,
-            drawer:{
+            drawer: {
                 nodes: action.nodes,
                 connectors: action.connectors
             }
         }
     }
-    else if(action.type === 'reset_drawer'){
-        return{
+    else if (action.type === 'reset_drawer') {
+        return {
             ...state,
             drawer: {
                 nodes: [
@@ -118,7 +108,7 @@ const reducer = (state = initialState, action) => {
                         ],
                     }
                 ],
-                connectors:[]
+                connectors: []
             }
         }
     }
