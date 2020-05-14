@@ -211,7 +211,8 @@ class KitConditional extends SampleBase {
                     ...this.state,
                     message: "Your response saved successfully. Redirecting to inbox.",
                     success_snackbar: true,
-                    progress: false
+                    progress: false,
+                    activity: false,
                 })
     
             } else {

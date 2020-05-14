@@ -4,11 +4,6 @@ import Paperbase from './Paperbase';
 import axios from 'axios';
 import { connect } from 'react-redux';
 
-
-// const sleep = (milliseconds) => {
-//     return new Promise(resolve => setTimeout(resolve, milliseconds))
-// }
-
 class Flowkit extends Component {
 
     constructor(props) {
@@ -16,8 +11,14 @@ class Flowkit extends Component {
         this.fetchNotifications();
     }
 
-    componentDidUpdate(){
-        console.log("hello world");
+    async componentDidMount() {
+        try {
+            setInterval(async () => {
+                this.fetchNotifications();
+            }, 30000);
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     state = {
@@ -28,11 +29,15 @@ class Flowkit extends Component {
         axios.post('/get_notifications', {
             id: this.props.id,
         }).then(response => {
-            console.log(response);
             if (response.data) {
                 this.setState({
                     ...this.state,
                     notifications: response.data
+                })
+            }else{
+                this.setState({
+                    ...this.state,
+                    notifications: []
                 })
             }
         }).catch(error => {
@@ -40,22 +45,23 @@ class Flowkit extends Component {
         })
     }
 
+
     getNotifications = () => {
         this.state.notifications.forEach((element, index) => {
             this.props.enqueueSnackbar(element.message, {
                 autoHideDuration: 10000,
+                key: element.id,
                 anchorOrigin: {
                     vertical: 'top',
                     horizontal: 'right',
                 }
-            })
-        });
+            });
+        })
     }
 
-
-
     render() {
-        return <Paperbase match={this.props.match} getNotifications={this.getNotifications}
+        return <Paperbase match={this.props.match
+        } getNotifications={this.getNotifications}
             number={this.state.notifications.length} />
     }
 }

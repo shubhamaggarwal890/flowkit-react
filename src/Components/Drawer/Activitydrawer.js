@@ -317,6 +317,7 @@ class ActivityDrawer extends Component {
             nodesTemp[index].associate = this.state.associate
             nodesTemp[index].other_associate = this.state.other_associate
             nodesTemp[index].others_vertical = this.state.others_vertical
+            nodesTemp[index].role_approval = this.state.role_approval
             nodesTemp[index].valid = true
             this.props.diagramSettings(nodesTemp, this.props.connectors)
 
@@ -486,28 +487,25 @@ class ActivityDrawer extends Component {
                                 </FormControl>
                             </Grid> : null
                         }
-                        <Grid item xs={12}>
-                            {this.state.message ? <Alert severity="error">{this.state.message}</Alert> : null}
-                        </Grid>
-                        <Grid item xs={12}>
-                            {this.state.success ? <Alert severity="success">{this.state.success}</Alert> : null}
-                        </Grid>
+                        {this.state.message ? <Grid item xs={12}>
+                            <Alert severity="error">{this.state.message}</Alert>
+                        </Grid> : null}
+                        {this.state.success ? <Grid item xs={12}>
+                            <Alert severity="success">{this.state.success}</Alert>
+                        </Grid> : null}
                         <Grid item xs={12}>
                             <Button
                                 type="button"
                                 fullWidth
                                 variant="contained"
                                 color="primary"
-                                style={{marginBottom: "15px" }}
+                                style={{ marginBottom: "15px" }}
                                 onClick={this.saveActivityHandler}
                             >
                                 Save Activity
                             </Button>
                         </Grid>
-
                     </Grid>
-
-
                 </Container>
             </div>
         )
